@@ -82,9 +82,9 @@ namespace Script.Events
                 return "";
             }
 
-            if (position > 1) {
-                return "";
-            }
+            // if (position > 1) {
+            //     return "";
+            // }
 
             var availableSpecies = userScore.FoundSpecies.ToList();
             var selectedIndex = Server.Math.Rand(0, availableSpecies.Count);
