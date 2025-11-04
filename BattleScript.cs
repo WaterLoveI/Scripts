@@ -2653,7 +2653,7 @@ namespace Script
                             }
                             break;
                         case Enums.Weather.Snowing:
-                        case Enums.Weather.Snowstorm:
+                        case Enums.Weather.Snowstorm:                           
                         case Enums.Weather.Hail:
                             {
                                 if (setup.moveIndex == 74)
@@ -2691,6 +2691,10 @@ namespace Script
                             break;
                         case Enums.Weather.Sunny:
                             {
+                                if (setup.moveIndex == 74)
+                                {
+                                    setup.Move.Accuracy /= 2;
+                                }
                                 if (setup.moveIndex == 13)
                                 {
                                     setup.Move.Accuracy /= 2;
