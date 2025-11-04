@@ -1413,7 +1413,7 @@ namespace Script
                                         setup.Move.Data1 *= 2;
                                         setup.Move.Element = Enums.PokemonType.Water;
                                         setup.Move.TravelingAnim.AnimationIndex = 15;
-                                        setup.Move.DefenderAnim.AnimationIndex = 71;
+                                        setup.Move.Anim.AnimationIndex = 71;
                                     }
                                     break;
                                 case Enums.Weather.Snowing:
@@ -1423,14 +1423,14 @@ namespace Script
                                         setup.Move.Data1 *= 2;
                                         setup.Move.Element = Enums.PokemonType.Ice;
                                         setup.Move.TravelingAnim.AnimationIndex = 410;
-                                        setup.Move.DefenderAnim.AnimationIndex = 10;
+                                        setup.Move.Anim.AnimationIndex = 10;
                                     }
                                     break;
                                 case Enums.Weather.DiamondDust:
                                     {
                                         setup.Move.Data1 *= 2;
                                         setup.Move.Element = Enums.PokemonType.Normal;
-                                        setup.Move.DefenderAnim.AnimationIndex = 72;
+                                        setup.Move.Anim.AnimationIndex = 72;
                                     }
                                     break;
                                 case Enums.Weather.Cloudy:
@@ -1445,7 +1445,7 @@ namespace Script
                                         setup.Move.Data1 *= 2;
                                         setup.Move.Element = Enums.PokemonType.Fire;
                                         setup.Move.TravelingAnim.AnimationIndex = 35;
-                                        setup.Move.DefenderAnim.AnimationIndex = 20;
+                                        setup.Move.Anim.AnimationIndex = 20;
                                     }
                                     break;
                                 case Enums.Weather.Sandstorm:
@@ -1454,7 +1454,7 @@ namespace Script
                                         setup.Move.Data1 *= 2;
                                         setup.Move.Element = Enums.PokemonType.Rock;
                                         setup.Move.TravelingAnim.AnimationIndex = 412;
-                                        setup.Move.DefenderAnim.AnimationIndex = 14;
+                                        setup.Move.Anim.AnimationIndex = 14;
                                     }
                                     break;
 
@@ -2047,7 +2047,7 @@ namespace Script
                 //}
                 bool followAway = false;
 
-                if (setup.Defender != null)
+                if (setup. != null)
                 {
 
                     status = setup.Attacker.VolatileStatus.GetStatus("Follow");
@@ -2057,7 +2057,7 @@ namespace Script
                         {
                             setup.Attacker.VolatileStatus.Remove(status);
                         }
-                        else if (status.Target != setup.Defender)
+                        else if (status.Target != setup.)
                         {
                             if (status.Target != null)
                             {
@@ -2067,13 +2067,13 @@ namespace Script
                             {
                                 setup.PacketStack.AddPacketToMap(setup.AttackerMap, PacketBuilder.CreateBattleMsg(setup.Attacker.Name + " can only attack one target!", Text.BrightRed), setup.Attacker.X, setup.Attacker.Y, 10);
                             }
-                            setup.Defender = null;
+                            setup. = null;
                             followAway = true;
                         }
                     }
                 }
 
-                if (setup.Defender != null)
+                if (setup. != null)
                 {
                     int criticalRate = 625;
 
@@ -2088,7 +2088,7 @@ namespace Script
                             }
                             else
                             {
-                                setup.AttackStat = setup.Defender.Atk;
+                                setup.AttackStat = setup..Atk;
                             }
                         }
                         else if (setup.Move.MoveCategory == Enums.MoveCategory.Special)
@@ -2100,17 +2100,17 @@ namespace Script
                             }
                             else
                             {
-                                setup.AttackStat = setup.Defender.SpclAtk;
+                                setup.AttackStat = setup..SpclAtk;
                             }
                         }
                     }
 
-                    //defender-based move modification
+                    //-based move modification
                     switch (setup.Move.AdditionalEffectData1)
                     {
                         case 7:
                             {//extra minimize damage
-                                if (setup.Move.AdditionalEffectData3 == 1 && setup.Defender.VolatileStatus.GetStatus("Minimize") != null)
+                                if (setup.Move.AdditionalEffectData3 == 1 && setup..VolatileStatus.GetStatus("Minimize") != null)
                                 {
                                     setup.Multiplier *= 2;
                                 }
@@ -2136,58 +2136,58 @@ namespace Script
                             break;
                         case 73:
                             {//Punishment
-                                if (setup.Defender.AttackBuff > 0) setup.Move.Data1 += (20 * setup.Defender.AttackBuff);
-                                if (setup.Defender.DefenseBuff > 0) setup.Move.Data1 += (20 * setup.Defender.DefenseBuff);
-                                if (setup.Defender.SpeedBuff > 0) setup.Move.Data1 += (20 * setup.Defender.SpeedBuff);
-                                if (setup.Defender.SpAtkBuff > 0) setup.Move.Data1 += (20 * setup.Defender.SpAtkBuff);
-                                if (setup.Defender.SpDefBuff > 0) setup.Move.Data1 += (20 * setup.Defender.SpDefBuff);
-                                if (setup.Defender.AccuracyBuff > 0) setup.Move.Data1 += (20 * setup.Defender.AccuracyBuff);
-                                if (setup.Defender.EvasionBuff > 0) setup.Move.Data1 += (20 * setup.Defender.EvasionBuff);
+                                if (setup..AttackBuff > 0) setup.Move.Data1 += (20 * setup..AttackBuff);
+                                if (setup..DefenseBuff > 0) setup.Move.Data1 += (20 * setup..DefenseBuff);
+                                if (setup..SpeedBuff > 0) setup.Move.Data1 += (20 * setup..SpeedBuff);
+                                if (setup..SpAtkBuff > 0) setup.Move.Data1 += (20 * setup..SpAtkBuff);
+                                if (setup..SpDefBuff > 0) setup.Move.Data1 += (20 * setup..SpDefBuff);
+                                if (setup..AccuracyBuff > 0) setup.Move.Data1 += (20 * setup..AccuracyBuff);
+                                if (setup..EvasionBuff > 0) setup.Move.Data1 += (20 * setup..EvasionBuff);
                             }
                             break;
                         case 74:
                             {//Brine
-                                if (setup.Defender.HP <= setup.Defender.MaxHP / 2) setup.Move.Data1 *= 2;
+                                if (setup..HP <= setup..MaxHP / 2) setup.Move.Data1 *= 2;
                             }
                             break;
                         case 77:
                             {//wring out
-                                setup.Move.Data1 = 120 * setup.Defender.HP / setup.Defender.MaxHP;
+                                setup.Move.Data1 = 120 * setup..HP / setup..MaxHP;
                             }
                             break;
                         case 78:
                             {//Gyro Ball
                                 int attackerSpeed = setup.Attacker.Spd;
-                                int defenderSpeed = setup.Defender.Spd;
+                                int Speed = setup..Spd;
 
                                 attackerSpeed = DamageCalculator.ApplySpeedBuff(attackerSpeed, setup.Attacker.SpeedBuff);
-                                defenderSpeed = DamageCalculator.ApplySpeedBuff(defenderSpeed, setup.Defender.SpeedBuff);
+                                Speed = DamageCalculator.ApplySpeedBuff(Speed, setup..SpeedBuff);
 
                                 if (setup.Attacker.HasActiveItem(258))
                                 {
                                     attackerSpeed *= 3;
                                     attackerSpeed /= 2;
                                 }
-                                if (setup.Defender.HasActiveItem(258))
+                                if (setup..HasActiveItem(258))
                                 {
-                                    defenderSpeed *= 3;
-                                    defenderSpeed /= 2;
+                                    Speed *= 3;
+                                    Speed /= 2;
                                 }
 
                                 if (attackerSpeed < 1) attackerSpeed = 1;
-                                if (defenderSpeed < 1) defenderSpeed = 1;
+                                if (Speed < 1) Speed = 1;
 
                                 switch (setup.Move.AdditionalEffectData2)
                                 {
                                     case 1:
                                         {
-                                            setup.Move.Data1 = 25 * defenderSpeed / attackerSpeed;
+                                            setup.Move.Data1 = 25 * Speed / attackerSpeed;
                                             if (setup.Move.Data1 > 150) setup.Move.Data1 = 150;
                                         }
                                         break;
                                     case 2:
                                         {
-                                            int ratio = attackerSpeed / defenderSpeed;
+                                            int ratio = attackerSpeed / Speed;
                                             if (ratio >= 4)
                                             {
                                                 setup.Move.Data1 = 150;
@@ -2211,7 +2211,7 @@ namespace Script
                             break;
                         case 79:
                             {//smellingsalt
-                                if (setup.Defender.StatusAilment != Enums.StatusAilment.OK && (setup.Move.AdditionalEffectData2 == 0 || setup.Defender.StatusAilment == (Enums.StatusAilment)setup.Move.AdditionalEffectData2))
+                                if (setup..StatusAilment != Enums.StatusAilment.OK && (setup.Move.AdditionalEffectData2 == 0 || setup..StatusAilment == (Enums.StatusAilment)setup.Move.AdditionalEffectData2))
                                 {
                                     setup.Move.Data1 *= 2;
                                 }
@@ -2226,7 +2226,7 @@ namespace Script
                                     {
                                         setup.Attacker.VolatileStatus.Remove(status);
                                     }
-                                    else if (status.Target == setup.Defender)
+                                    else if (status.Target == setup.)
                                     {
                                         setup.Move.Data1 *= 2;
                                     }
@@ -2244,7 +2244,7 @@ namespace Script
                             break;
                         case 113:
                             {//Uproar
-                                if (MoveProcessor.GetMatchupWith(setup.Attacker, setup.Defender) != Enums.CharacterMatchup.Foe)
+                                if (MoveProcessor.GetMatchupWith(setup.Attacker, setup.) != Enums.CharacterMatchup.Foe)
                                 {
                                     setup.Move.EffectType = Enums.MoveType.Scripted;
                                     setup.Move.Data1 = 0;
@@ -2253,7 +2253,7 @@ namespace Script
                             break;
                         case 132:
                             {//sucker punch
-                                if (MoveProcessor.IsInFront(1, setup.Attacker.Direction, setup.Attacker.X, setup.Attacker.Y, setup.Defender.X, setup.Defender.Y))
+                                if (MoveProcessor.IsInFront(1, setup.Attacker.Direction, setup.Attacker.X, setup.Attacker.Y, setup..X, setup..Y))
                                 {
                                     setup.Move.Accuracy = 0;
                                 }
@@ -2261,7 +2261,7 @@ namespace Script
                             break;
                         case 135:
                             {//pursuit
-                                if (setup.Defender.Direction == setup.Attacker.Direction)
+                                if (setup..Direction == setup.Attacker.Direction)
                                 {
                                     setup.Multiplier *= 2;
                                 }
@@ -2269,12 +2269,12 @@ namespace Script
                             break;
                         case 142:
                             {//weight-based
-                                double weight = Server.Pokedex.Pokedex.GetPokemonForm(setup.Defender.Species, setup.Defender.Form).Weight;
+                                double weight = Server.Pokedex.Pokedex.GetPokemonForm(setup..Species, setup..Form).Weight;
 
-                                if (HasAbility(setup.Defender, "Heavy Metal") && !HasAbility(setup.Attacker, "Mold Breaker")) weight = weight * (double)2;
-                                if (HasAbility(setup.Defender, "Light Metal") && !HasAbility(setup.Attacker, "Mold Breaker")) weight = weight / (double)2;
-                                if (setup.Defender.HasActiveItem(347)) weight = weight / (double)2;
-                                if (setup.Defender.VolatileStatus.GetStatus("Autotomize") != null) weight = weight / (double)2;
+                                if (HasAbility(setup., "Heavy Metal") && !HasAbility(setup.Attacker, "Mold Breaker")) weight = weight * (double)2;
+                                if (HasAbility(setup., "Light Metal") && !HasAbility(setup.Attacker, "Mold Breaker")) weight = weight / (double)2;
+                                if (setup..HasActiveItem(347)) weight = weight / (double)2;
+                                if (setup..VolatileStatus.GetStatus("Autotomize") != null) weight = weight / (double)2;
 
                                 if (weight > 200)
                                 {
@@ -2303,7 +2303,7 @@ namespace Script
                             }
                             break;
                         case 143:
-                            {//weight-based (attacker sits on defender)
+                            {//weight-based (attacker sits on )
                                 double weight = Server.Pokedex.Pokedex.GetPokemonForm(setup.Defender.Species, setup.Defender.Form).Weight;
                                 if (HasAbility(setup.Defender, "Heavy Metal") && !HasAbility(setup.Attacker, "Mold Breaker")) weight = weight * (double)2;
                                 if (HasAbility(setup.Defender, "Light Metal") && !HasAbility(setup.Attacker, "Mold Breaker")) weight = weight / (double)2;
@@ -2654,20 +2654,18 @@ namespace Script
                             break;
                         case Enums.Weather.Snowing:
                         case Enums.Weather.Snowstorm:
-                            {
-                                if (setup.moveIndex == 74)
-                                {
-                                    setup.Move.Accuracy = -1;
-                                }
-
-                            }
-                            break;
                         case Enums.Weather.Hail:
                             {
                                 if (setup.moveIndex == 74)
                                 {
                                     setup.Move.Accuracy = -1;
                                 }
+                                if (setup.Move.MoveCategory == Enums.MoveCategory.Physical && setup.Defender != null && (setup.Defender.Type1 == Enums.PokemonType.Ice || setup.Defender.Type2 == Enums.PokemonType.Ice))
+                                {
+                                    setup.DefenseStat *= 3;
+                                    setup.DefenseStat /= 2;
+                                }
+
                             }
                             break;
                         case Enums.Weather.DiamondDust:
