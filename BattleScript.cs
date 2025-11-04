@@ -2654,20 +2654,18 @@ namespace Script
                             break;
                         case Enums.Weather.Snowing:
                         case Enums.Weather.Snowstorm:
-                            {
-                                if (setup.moveIndex == 74)
-                                {
-                                    setup.Move.Accuracy = -1;
-                                }
-
-                            }
-                            break;
                         case Enums.Weather.Hail:
                             {
                                 if (setup.moveIndex == 74)
                                 {
                                     setup.Move.Accuracy = -1;
                                 }
+                                if (setup.Move.MoveCategory == Enums.MoveCategory.Physical && setup.Defender != null && (setup.Defender.Type1 == Enums.PokemonType.Ice || setup.Defender.Type2 == Enums.PokemonType.Ice))
+                                {
+                                    setup.DefenseStat *= 3;
+                                    setup.DefenseStat /= 2;
+                                }
+
                             }
                             break;
                         case Enums.Weather.DiamondDust:
@@ -2693,10 +2691,6 @@ namespace Script
                             break;
                         case Enums.Weather.Sunny:
                             {
-                                if (setup.moveIndex == 74)
-                                {
-                                    setup.Move.Accuracy /= 2;
-                                }
                                 if (setup.moveIndex == 13)
                                 {
                                     setup.Move.Accuracy /= 2;
