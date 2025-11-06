@@ -17,45 +17,39 @@
 
 namespace Script
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
-    using System.Linq;
-
+    using DataManager.Players;
+    using Script.Models;
     using Server;
     using Server.AI;
-    using Server.Maps;
-    using Server.Players;
-    using Server.RDungeons;
-    using Server.Dungeons;
     using Server.Combat;
-    using Server.Pokedex;
-    using Server.Items;
-    using Server.Moves;
-    using Server.Npcs;
-    using Server.Stories;
-    using Server.Exp;
-    using Server.Network;
-    using Server.Sockets;
-    using Server.Players.Parties;
-    using Server.Logging;
-    using Server.Missions;
-    using Server.Events.Player.TriggerEvents;
-    using Server.WonderMails;
-    using Server.Tournaments;
-    using Server.Events;
-    using Server.Trading;
-    using Server.SecretBases;
-
-    using DataManager.Players;
     using Server.Database;
-    using Script.Models;
-    using Server.Events.World;
-    using Server.Legendaries;
-    using System.Threading.Tasks;
     using Server.Discord;
-    using Server.Quests;
+    using Server.Dungeons;
+    using Server.Events;
+    using Server.Events.World;
+    using Server.Exp;
+    using Server.Items;
     using Server.Leaderboards;
+    using Server.Legendaries;
+    using Server.Maps;
+    using Server.Missions;
+    using Server.Moves;
+    using Server.Network;
+    using Server.Npcs;
+    using Server.Players;
+    using Server.Players.Parties;
+    using Server.Pokedex;
+    using Server.Quests;
+    using Server.RDungeons;
+    using Server.Sockets;
+    using Server.Stories;
+    using Server.Tournaments;
+    using Server.Trading;
+    using Server.WonderMails;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
 
     public partial class Main
     {
@@ -363,10 +357,12 @@ namespace Script
                     client.Player.UnlockAchievement(0);
                 }
 
-                if (message.Contains(":poop:")) {
+                if (message.Contains(":poop:"))
+                {
                     client.Player.UnlockAchievement(1);
                 }
-                if (message.Contains(":eyes:")) {
+                if (message.Contains(":eyes:"))
+                {
                     client.Player.UnlockAchievement(2);
                 }
 
@@ -1439,10 +1435,68 @@ namespace Script
             }
         }
 
-        public static void PlayerEXP(PacketHitList hitlist, Client client, ulong exp)
+        public static void PlayerEXP(PacketHitList hitlist, Client client, ulong exp, IMap map)
         {
             try
             {
+                if (client.Player.GetCurrentMap().MapType == Enums.MapType.RDungeonMap)
+                {
+                    int dungeonNum = ((RDungeonMap)map).RDungeonIndex + 1;
+                    
+                    int speciesNum = client.Player.GetActiveRecruit().Species;
+                    int evoIndex = -1;
+
+                    bool inMeeJive = false;
+                    bool inAeons = false;
+                    bool inHalcyon = false;
+                    bool InAnyofMyDungeons = false;
+
+                    if (dungeonNum == 78)
+                    {
+                        inMeeJive = true;
+                    }
+                    if (dungeonNum == 69)
+                    {
+                        inHalcyon = true;
+                    }
+                    if (dungeonNum >= 80 && dungeonNum <= 85)
+                    {
+                        inAeons = true;
+                    }
+
+                    if (inMeeJive || inHalcyon || inAeons)
+                    {
+                        InAnyofMyDungeons = true;
+                    }
+
+                    // I want pre evos to get boosted exp.
+                    for (int z = 0; z < Server.Evolutions.EvolutionManager.Evolutions.MaxEvos; z++)
+                    {
+                        if (Server.Evolutions.EvolutionManager.Evolutions[z].Species == speciesNum)
+                        {
+                            evoIndex = z;
+                        }
+                    }
+                    if (evoIndex == -1 && InAnyofMyDungeons)
+                    {
+                        client.Player.GetActiveRecruit().EXPBoost += 100; 
+                    }
+
+                    if (inMeeJive && (client.Player.GetActiveRecruit().Type1 == Enums.PokemonType.Bug || client.Player.GetActiveRecruit().Type2 == Enums.PokemonType.Bug))
+                    {
+                        client.Player.GetActiveRecruit().EXPBoost += 100;
+                    }
+
+                    if (inAeons && (client.Player.GetActiveRecruit().Type1 == Enums.PokemonType.Flying || client.Player.GetActiveRecruit().Type2 == Enums.PokemonType.Flying))
+                    {
+                        client.Player.GetActiveRecruit().EXPBoost += 100;
+                    }
+                    if (inHalcyon && (client.Player.GetActiveRecruit().Type1 == Enums.PokemonType.Water || client.Player.GetActiveRecruit().Type2 == Enums.PokemonType.Water))
+                    {
+                        client.Player.GetActiveRecruit().EXPBoost += 100;
+                    }
+
+                }
                 exp *= (ulong)(100 + ExpBonus + client.Player.GetActiveRecruit().EXPBoost); // Temp EXP Boost. 100 to 135
                 exp /= 100;
 
@@ -1819,9 +1873,9 @@ namespace Script
                 {
                     case 1:
                         {//Level
-                            if(client.Player.GetActiveRecruit().Species == 745) // Lycanroc forme
+                            if (client.Player.GetActiveRecruit().Species == 745) // Lycanroc forme
                             {
-                                switch(Server.Globals.ServerTime)
+                                switch (Server.Globals.ServerTime)
                                 {
                                     case Enums.Time.Day: client.Player.GetActiveRecruit().SetOriginalForm(0, hitlist); break;
                                     case Enums.Time.Night: client.Player.GetActiveRecruit().SetOriginalForm(1, hitlist); break;
@@ -2342,7 +2396,7 @@ namespace Script
                 }
 
                 string[] questionArguments = Array.Empty<string>();
-                if (questionID.Contains(":")) 
+                if (questionID.Contains(":"))
                 {
                     var split = questionID.Split(':');
 
@@ -2355,7 +2409,7 @@ namespace Script
                 {
                     case "AskStaffApplication":
                         {
-                            if (answer == "Yes") 
+                            if (answer == "Yes")
                             {
                                 client.Player.Access = Enums.Rank.Developer;
 
@@ -2389,7 +2443,7 @@ namespace Script
                         break;
                     case "TradeConfirmationWait":
                         {
-                            if (answer == "Cancel") 
+                            if (answer == "Cancel")
                             {
                                 client.Player.TradingSession = null;
                             }
@@ -2413,7 +2467,7 @@ namespace Script
                                 };
 
                                 Messenger.PlayerMsg(partner, $"{client.Player.DisplayName} accepted!", Text.BrightGreen);
-                            } 
+                            }
                             else
                             {
                                 partner.Player.TradingSession = null;
@@ -4732,8 +4786,8 @@ namespace Script
                             if (questToStart > -1)
                             {
                                 client.Player.StartQuest(QuestManager.Instance.Resources[questToStart], 0, false);
-                            } 
-                            else 
+                            }
+                            else
                             {
                                 Messenger.PlayerMsg(client, "There are no more quests ready! Try again later.", Text.BrightRed);
                             }
@@ -6461,7 +6515,7 @@ namespace Script
                             HealCharacterBelly(setup.Attacker, ItemManager.Items[itemNum].Data3, setup.PacketStack);
                         }
                         break;
-                   
+
                     case 41:
                         {//music item
                             if (setup.Attacker.CharacterType == Enums.CharacterType.Recruit)
@@ -6621,20 +6675,21 @@ namespace Script
                     case 44:
                         {
                             //Forme change - toggle
-                            if (setup.Attacker.CharacterType == Enums.CharacterType.Recruit) {
+                            if (setup.Attacker.CharacterType == Enums.CharacterType.Recruit)
+                            {
                                 Recruit user = (Recruit)setup.Attacker;
                                 int dexNum = ItemManager.Items[itemNum].Data2;
                                 int formNum = ItemManager.Items[itemNum].Data3;
                                 bool changed = false;
 
-                                if(user.Species == dexNum)
+                                if (user.Species == dexNum)
                                 {
-                                    if(user.PermanentForm == 0)
+                                    if (user.PermanentForm == 0)
                                     {
                                         user.SetOriginalForm(formNum, setup.PacketStack);
                                         changed = true;
                                     }
-                                    else if(user.PermanentForm == formNum)
+                                    else if (user.PermanentForm == formNum)
                                     {
                                         user.SetOriginalForm(0, setup.PacketStack);
                                         changed = true;
@@ -6642,7 +6697,7 @@ namespace Script
 
                                 }
 
-                                if(!changed)
+                                if (!changed)
                                 {
                                     setup.PacketStack.AddPacketToMap(setup.AttackerMap, PacketBuilder.CreateBattleMsg("But nothing happened.", Text.WhiteSmoke), setup.Attacker.X, setup.Attacker.Y, 10);
 
@@ -6687,7 +6742,7 @@ namespace Script
                                     ++revealed;
                                 }
                             }
-                            if(revealed > 0) setup.PacketStack.AddPacketToMap(setup.AttackerMap, PacketBuilder.CreateBattleMsg(setup.Attacker.Name + " revealed " + revealed + " buried item" + (revealed != 1 ? "s" : "") + " on the floor.", Text.WhiteSmoke), setup.Attacker.X, setup.Attacker.Y, 10);
+                            if (revealed > 0) setup.PacketStack.AddPacketToMap(setup.AttackerMap, PacketBuilder.CreateBattleMsg(setup.Attacker.Name + " revealed " + revealed + " buried item" + (revealed != 1 ? "s" : "") + " on the floor.", Text.WhiteSmoke), setup.Attacker.X, setup.Attacker.Y, 10);
 
                         }
                         break;
@@ -7456,7 +7511,8 @@ namespace Script
                         break;
                     case 100: // Costumes
                         {
-                            if (setup.Attacker.CharacterType == Enums.CharacterType.Recruit) {
+                            if (setup.Attacker.CharacterType == Enums.CharacterType.Recruit)
+                            {
                                 var client = ((Recruit)setup.Attacker).Owner;
 
                                 if (item.IsSandboxed)
@@ -7487,12 +7543,13 @@ namespace Script
                                 var speciesName = Pokedex.GetPokemon(species).Name;
 
                                 Messenger.PlayerMsg(client, $"{speciesName} costume {costumeId} has been added to your costume box!", Text.BrightGreen);
-                            } 
+                            }
                         }
                         break;
                     case 101: // Birthday Present
                         {
-                            if (setup.Attacker.CharacterType == Enums.CharacterType.Recruit) {
+                            if (setup.Attacker.CharacterType == Enums.CharacterType.Recruit)
+                            {
                                 var client = ((Recruit)setup.Attacker).Owner;
 
                                 if (item.IsSandboxed)
@@ -7501,7 +7558,8 @@ namespace Script
                                     return;
                                 }
 
-                                foreach (var mapPlayer in client.Player.Map.GetClients()) {
+                                foreach (var mapPlayer in client.Player.Map.GetClients())
+                                {
                                     StoryManager.PlayStory(mapPlayer, 572 - 1);
                                 }
 
@@ -7514,14 +7572,15 @@ namespace Script
                         break;
                     case 102: // Mega Stone
                         {
-                            if (setup.Attacker.CharacterType == Enums.CharacterType.Recruit) {
+                            if (setup.Attacker.CharacterType == Enums.CharacterType.Recruit)
+                            {
                                 Recruit user = (Recruit)setup.Attacker;
                                 int dexNum = ItemManager.Items[itemNum].Data2;
                                 int formNum = ItemManager.Items[itemNum].Data3;
 
-                                if(user.Species == dexNum)
+                                if (user.Species == dexNum)
                                 {
-                                    if(!user.IsMegaEvolved())
+                                    if (!user.IsMegaEvolved())
                                         user.StartMegaEvolution(formNum);
                                     else
                                         user.EndMegaEvolution();
@@ -7891,7 +7950,7 @@ namespace Script
 
                 AddLegendaryFragments(client, map, null);
             }
-                
+
             int heldItemNum = -1;
             if (client.Player.GetActiveRecruit().HeldItemSlot > -1)
             {
@@ -8136,9 +8195,9 @@ namespace Script
                                     ++revealed;
                                 }
                             }
-                            if(revealed > 0) packetList.AddPacketToMap(client.Player.Map, PacketBuilder.CreateBattleMsg(client.Player.GetActiveRecruit().Name + " revealed " + revealed + " buried item" + (revealed != 1 ? "s" : "") + " on the floor.", Text.WhiteSmoke), client.Player.X, client.Player.Y, 10);
+                            if (revealed > 0) packetList.AddPacketToMap(client.Player.Map, PacketBuilder.CreateBattleMsg(client.Player.GetActiveRecruit().Name + " revealed " + revealed + " buried item" + (revealed != 1 ? "s" : "") + " on the floor.", Text.WhiteSmoke), client.Player.X, client.Player.Y, 10);
                         }
-                            
+
                         if (HasAbility(client.Player.GetActiveRecruit(), "Honey Gather")
                             && client.Player.FindInvSlot(-1) > -1)
                         {
@@ -8848,7 +8907,7 @@ namespace Script
                 {
                     var questToStart = GetNextIncompleteQuestId(client);
                     if (questToStart == -1)
-                    {   
+                    {
                         Story story = new Story();
                         StoryBuilderSegment segment = StoryBuilder.BuildStory();
                         StoryBuilder.AppendSaySegment(segment, "You've reached the end!", -1, 0, 0);
@@ -9521,7 +9580,7 @@ namespace Script
                     else
                     {
                         int distance = 1;
-                        if(HasAbility(client.Player.GetActiveRecruit(), "Flame Body") || HasAbility(client.Player.GetActiveRecruit(), "Magma Armor"))
+                        if (HasAbility(client.Player.GetActiveRecruit(), "Flame Body") || HasAbility(client.Player.GetActiveRecruit(), "Magma Armor"))
                             ++distance;
                         client.Player.Inventory[i].Tag = eggArgs[0] + ";" + (step - distance).ToString();
                     }
@@ -9695,7 +9754,7 @@ namespace Script
         {
             var idleMessage = defender.Player.PlayerData.IdleMessage;
 
-            if (string.IsNullOrEmpty(idleMessage)) 
+            if (string.IsNullOrEmpty(idleMessage))
             {
                 idleMessage = "Hello!";
             }
@@ -9726,7 +9785,7 @@ namespace Script
 
             foreach (var client in playerA.Player.Map.GetClients())
             {
-                if (client != playerA && client != playerB) 
+                if (client != playerA && client != playerB)
                 {
                     StoryManager.PlayStory(client, externalStory);
                 }
@@ -9752,7 +9811,8 @@ namespace Script
             var story = new Story();
             var segment = StoryBuilder.BuildStory();
 
-            if (!external) {
+            if (!external)
+            {
                 StoryBuilder.AppendSaySegment(segment, $"{client.Player.DisplayName}: Bye {myRecruit.Name}!", client.Player.GetActiveRecruit().Species, 0, 0);
             }
             StoryBuilder.AppendCreateFNPCAction(segment, "0", "s334", 6, 5, speciesA);
@@ -9765,7 +9825,7 @@ namespace Script
             return story;
         }
 
-        public static void OnServerTick(TickCount tickCount) 
+        public static void OnServerTick(TickCount tickCount)
         {
             if (ActiveEvent != null && ActiveEvent.IsStarted)
             {
@@ -9774,7 +9834,7 @@ namespace Script
 
             HandoutOutlawPoints(tickCount);
 
-            if (!IsEventScheduled()) 
+            if (!IsEventScheduled())
             {
                 var eventDate = GetEventDate();
                 var reminderDate = eventDate.AddDays(-1);
@@ -9787,7 +9847,7 @@ namespace Script
                     {
                         TimedEventManager.CreateTimer("eventintro", eventDate, null);
                         Task.Run(() => DiscordManager.Instance.SendAnnouncement($"The next event has been scheduled for {eventDate.ToDiscordFormat(DiscordTimeType.LongDateWithShortTime)}. It will be {ActiveEvent.Name}. A reminder will be sent on {reminderDate.ToDiscordFormat(DiscordTimeType.LongDateWithShortTime)}."));
-                    
+
                         if (DateTime.UtcNow >= reminderDate)
                         {
                             RunEventReminder();
@@ -9824,7 +9884,7 @@ namespace Script
                 case "countdown":
                     {
                         Messenger.GlobalMsg("Countdown complete!", Text.BrightGreen);
-                    }   
+                    }
                     break;
                 case "endevent":
                     {
@@ -9837,9 +9897,9 @@ namespace Script
                     }
                     break;
                 case "finishevent":
-                    {   
+                    {
                         Main.FinishEvent();
-                    }   
+                    }
                     break;
                 case "eventdeschedule":
                     {
@@ -9852,7 +9912,7 @@ namespace Script
                 case "eventreminder":
                     {
                         Main.RunEventReminder();
-                    }       
+                    }
                     break;
                 case "eventintro":
                     {
