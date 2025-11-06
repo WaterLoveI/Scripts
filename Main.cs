@@ -1451,15 +1451,15 @@ namespace Script
                     bool inHalcyon = false;
                     bool InAnyofMyDungeons = false;
 
-                    if (dungeonNum == 78)
+                    if (dungeonNum == 78 - 1)
                     {
                         inMeeJive = true;
                     }
-                    if (dungeonNum == 69)
+                    if (dungeonNum == 69 - 1)
                     {
                         inHalcyon = true;
                     }
-                    if (dungeonNum >= 80 && dungeonNum <= 85)
+                    if (dungeonNum >= 80 - 1 && dungeonNum <= 85 - 1)
                     {
                         inAeons = true;
                     }
