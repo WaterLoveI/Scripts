@@ -1715,6 +1715,47 @@ namespace Script
                     }
                 }
 
+                if (Main.inAnyofMydungeons)
+                {
+                    if (setup.Hit)
+                    {
+                        // weaken fire moves in MJ
+                        if (Main.inMeejive)
+                        {
+                            if (setup.Move.Element == Enums.PokemonType.Fire)
+                            {
+                                setup.AttackerMultiplier *= 7;
+                                setup.AttackerMultiplier /= 10;
+                            }
+                        }
+                        if (Main.inHalcyon)
+                        {
+                            if (setup.Move.Element == Enums.PokemonType.Water)
+                            {
+                                setup.AttackerMultiplier *= 11;
+                                setup.AttackerMultiplier /= 10;
+                            }
+                        }
+                        if (setup.Attacker.CharacterType == Enums.CharacterType.MapNpc)
+                        {
+                            setup.AttackerMultiplier *= 11;
+                            setup.AttackerMultiplier /= 10;
+                            if (setup.Attacker.Level >= 80)
+                            {
+                                setup.Move.Range += 1;
+                            }
+                            if (setup.Attacker.Level >= 90)
+                            {
+                                setup.Move.Range += 1;
+                            }
+                        }
+                        if (setup.Attacker.CharacterType == Enums.CharacterType.Recruit)
+                        {
+                            setup.AttackerMultiplier *= 9;
+                            setup.AttackerMultiplier /= 10;
+                        }
+                    }
+                }
 
                 //apply STAB
                 if (setup.Move.EffectType == Enums.MoveType.SubHP && setup.Move.Element != Enums.PokemonType.None && (setup.Move.Element == setup.Attacker.Type1 || setup.Move.Element == setup.Attacker.Type2))
@@ -9622,9 +9663,30 @@ namespace Script
                 {
                     ActiveEvent.OnNpcDeath(hitlist, attacker, npc);
                 }
-
+                IMap map = MapManager.RetrieveActiveMap(npc.MapID);
                 hitlist.AddPacketToMap(MapManager.RetrieveActiveMap(npc.MapID), PacketBuilder.CreateBattleMsg(npc.Name + " fainted!", Text.WhiteSmoke), npc.X, npc.Y, 10);
 
+                // Combess in MJ will summon helps after dying
+                if (Main.inMeejive)
+                {
+                    if (npc.Species == 415) 
+                    {
+                        hitlist.AddPacketToMap(map, PacketBuilder.CreateSoundPacket("Magic197.wav"), npc.X, npc.Y, 10);
+                        hitlist.AddPacketToMap(map, PacketBuilder.CreateSpellAnim(561, npc.X, npc.Y));
+                        hitlist.AddPacketToMap(map, PacketBuilder.CreateBattleMsg("The Combee cried for help!", Text.BrightRed), npc.X, npc.Y, 10);
+                        for (int i = 0; i < Constants.MAX_MAP_NPCS / 4; i++)
+                        {
+                            if (Server.Math.Rand(0, 2) == 0)
+                            {
+                                SpawnNpcInRange(map, npc.X, npc.Y, 2, hitlist);
+                            }
+                            else
+                            {
+                                map.SpawnNpc();
+                            }
+                        }
+                    }
+                }
                 //aftermath
                 if (HasAbility(npc, "Aftermath"))
                 {
@@ -9696,7 +9758,7 @@ namespace Script
                 }
 
                 RemoveAllBondedExtraStatus(npc, MapManager.RetrieveActiveMap(npc.MapID), hitlist, false);
-                IMap map = MapManager.RetrieveActiveMap(npc.MapID);
+                
                 Client client = null;
                 foreach (Client n in map.GetClients())
                 {

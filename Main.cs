@@ -65,6 +65,12 @@ namespace Script
 
         public static Countdown GlobalCountdown { get; set; }
 
+        // Checks for Analytic's dungeons
+        public static bool inHalcyon = false;
+        public static bool inMeejive = false;
+        public static bool inAeons = false;
+        public static bool inAnyofMydungeons = false;
+
         public static void SetGlobalCountdown(Countdown countdown)
         {
             GlobalCountdown = countdown;
@@ -1439,36 +1445,20 @@ namespace Script
         {
             try
             {
+
+                exp *= (ulong)(100 + ExpBonus + client.Player.GetActiveRecruit().EXPBoost); // Temp EXP Boost. 100 to 135
+                exp /= 100;
                 if (client.Player.GetCurrentMap().MapType == Enums.MapType.RDungeonMap)
                 {
-                    int dungeonNum = ((RDungeonMap)map).RDungeonIndex + 1;
-                    
                     int speciesNum = client.Player.GetActiveRecruit().Species;
                     int evoIndex = -1;
-
-                    bool inMeeJive = false;
-                    bool inAeons = false;
-                    bool inHalcyon = false;
-                    bool InAnyofMyDungeons = false;
-
-                    if (dungeonNum == 78 - 1)
+                    bool ExpBoostingItem = false;
+                    // checking for exp boosting item so they don't stack with dungeon bonuses.
+                    if (client.Player.GetActiveRecruit().HasActiveItem(135) || client.Player.GetActiveRecruit().HasActiveItem(165) || client.Player.GetActiveRecruit().HasActiveItem(253)
+                        || client.Player.GetActiveRecruit().HasActiveItem(777) || client.Player.GetActiveRecruit().HasActiveItem(900))
                     {
-                        inMeeJive = true;
+                        ExpBoostingItem = true;
                     }
-                    if (dungeonNum == 69 - 1)
-                    {
-                        inHalcyon = true;
-                    }
-                    if (dungeonNum >= 80 - 1 && dungeonNum <= 85 - 1)
-                    {
-                        inAeons = true;
-                    }
-
-                    if (inMeeJive || inHalcyon || inAeons)
-                    {
-                        InAnyofMyDungeons = true;
-                    }
-
                     // I want pre evos to get boosted exp.
                     for (int z = 0; z < Server.Evolutions.EvolutionManager.Evolutions.MaxEvos; z++)
                     {
@@ -1477,28 +1467,26 @@ namespace Script
                             evoIndex = z;
                         }
                     }
-                    if (evoIndex == -1 && InAnyofMyDungeons)
+                    if (evoIndex == -1 && inAnyofMydungeons)
                     {
-                        client.Player.GetActiveRecruit().EXPBoost += 100; 
+                        exp += (ulong)(exp * 0.5);
                     }
 
-                    if (inMeeJive && (client.Player.GetActiveRecruit().Type1 == Enums.PokemonType.Bug || client.Player.GetActiveRecruit().Type2 == Enums.PokemonType.Bug))
+                    if (!ExpBoostingItem || inMeejive && (client.Player.GetActiveRecruit().Type1 == Enums.PokemonType.Bug || client.Player.GetActiveRecruit().Type2 == Enums.PokemonType.Bug))
                     {
-                        client.Player.GetActiveRecruit().EXPBoost += 100;
+                        exp *= 2;
                     }
 
-                    if (inAeons && (client.Player.GetActiveRecruit().Type1 == Enums.PokemonType.Flying || client.Player.GetActiveRecruit().Type2 == Enums.PokemonType.Flying))
+                    if (!ExpBoostingItem || inAeons && (client.Player.GetActiveRecruit().Type1 == Enums.PokemonType.Flying || client.Player.GetActiveRecruit().Type2 == Enums.PokemonType.Flying))
                     {
-                        client.Player.GetActiveRecruit().EXPBoost += 100;
+                        exp *= 2;
                     }
-                    if (inHalcyon && (client.Player.GetActiveRecruit().Type1 == Enums.PokemonType.Water || client.Player.GetActiveRecruit().Type2 == Enums.PokemonType.Water))
+                    if (!ExpBoostingItem || inHalcyon && (client.Player.GetActiveRecruit().Type1 == Enums.PokemonType.Water || client.Player.GetActiveRecruit().Type2 == Enums.PokemonType.Water))
                     {
-                        client.Player.GetActiveRecruit().EXPBoost += 100;
+                        exp *= 2;
                     }
 
                 }
-                exp *= (ulong)(100 + ExpBonus + client.Player.GetActiveRecruit().EXPBoost); // Temp EXP Boost. 100 to 135
-                exp /= 100;
 
                 if (client.Player.GetActiveRecruit().HasActiveItem(720))
                 {
@@ -8207,6 +8195,21 @@ namespace Script
                                 packetList.AddPacket(client, PacketBuilder.CreateBattleMsg(client.Player.GetActiveRecruit().Name + " gathered honey from somewhere.", Text.WhiteSmoke));
                             }
                         }
+                        // players can find honey by going through MJ, 1/6 at max level.
+                        if (inMeejive && client.Player.FindInvSlot(-1) > -1)
+                        {
+                            int chance = Server.Math.Rand(0, 600);
+                            int HoneyItem = 11;
+                            if (chance <= client.Player.GetActiveRecruit().Level)
+                            {
+                                if (chance <= 10)
+                                {
+                                    HoneyItem = 770; // pink honey
+                                }
+                                client.Player.GiveItem(HoneyItem, 0, "");
+                                packetList.AddPacket(client, PacketBuilder.CreateBattleMsg(client.Player.GetActiveRecruit().Name + " gathered honey from somewhere.", Text.WhiteSmoke));
+                            }
+                        }
 
                         if (client.Player.Map.MapType == Enums.MapType.RDungeonMap)
                         {
@@ -8417,7 +8420,38 @@ namespace Script
                 }
             }
         }
-
+        public static bool InRDungeon(Client client, IMap map, PacketHitList packetlist)
+        {
+            if (map.MapType == Enums.MapType.RDungeonMap)
+            {
+                int dungeonNum = ((RDungeonMap)map).RDungeonIndex + 1;
+                if (dungeonNum == 78)
+                {
+                    inMeejive = true;
+                }
+                if (dungeonNum == 69)
+                {
+                    inHalcyon = true;
+                }
+                if (dungeonNum >= 80 && dungeonNum <= 85)
+                {
+                    inAeons = true;
+                }
+                if (inMeejive || inHalcyon || inAeons)
+                {
+                    inAnyofMydungeons = true;
+                }
+                return true;
+            }
+            else
+            {
+                inMeejive = false;
+                inHalcyon = false;
+                inAeons = false;
+                inAnyofMydungeons = false;
+            }
+            return false;
+        }
         public static void AddExclusives(Client client, IMap map, PacketHitList packetlist)
         {
             int idNum = client.Player.CharID.Substring(client.Player.CharID.Length - 1, 1).ToInt();
@@ -8705,6 +8739,21 @@ namespace Script
             if (dungeonNum == 38 - 1)
             {
                 ElectrostasisTower.EnterRDungeon(client, dungeonNum, floor);
+            }
+            if (inMeejive)
+            {
+                if (floor == 1)
+                {
+                    Messenger.BattleMsg(client, "The jungle seems restless.", Text.BrightRed);
+                }
+                if (floor == 35)
+                {
+                    Messenger.BattleMsg(client, "You feel a sense of unrest.", Text.BrightRed);
+                }
+                if (floor == 55)
+                {
+                    Messenger.BattleMsg(client, "You feel a sense of unrest.", Text.BrightRed);
+                }
             }
         }
 
