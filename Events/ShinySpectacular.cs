@@ -44,6 +44,7 @@ namespace Script.Events
         public override string Name => "Shiny Spectacular";
 
         public override string IntroductionMessage => "Swarms of shiny Pokemon have been spotted in dungeons! Defeat the most to win!";
+        public override string RewardMessage => "The top player with the most points will receive one of the shiny Pokemon they defeated.";
 
         public override string[] Rules => new string[] 
         {
